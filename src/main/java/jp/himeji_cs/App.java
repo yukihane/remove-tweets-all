@@ -1,11 +1,13 @@
 package jp.himeji_cs;
 
-/**
- * Hello world!
- */
+import java.io.IOException;
+
 public class App {
 
-    public static void main(final String[] args) {
-        System.out.println("Hello World!");
+    public static void main(final String[] args) throws IOException {
+
+        final TwitterService tw = new TwitterService();
+        tw.init();
+        tw.login("test", "testpw");
     }
 }

@@ -18,4 +18,6 @@ public final class Urls {
      * ID, passwordをPOSTするURL。
      */
     public static final String LOGIN_POST = PREFIX + "/sessions";
+
+    public static final String DELETE_TMPLATE = "https://mobile.twitter.com/statuses/{id}/delete";
 }

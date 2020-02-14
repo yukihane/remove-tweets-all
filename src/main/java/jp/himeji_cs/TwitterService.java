@@ -18,6 +18,8 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 @Slf4j
@@ -64,6 +66,34 @@ public class TwitterService {
             extractCookie(resp, "auth_token")
                 .orElseThrow(() -> new RuntimeException("Login failed"));
         }
+    }
+
+    /**
+     * 該当ツイートが削除可能かどうか。
+     * これは、画面に削除ボタンが表示されるかどうかです。
+     * 削除ボタンを押した時、本当に削除されるかどうかはわかりません。
+     * (なんと、他人のツイートを表示した場合にも削除ボタンは表示されます！
+     * が、もちろん削除ボタンを押しても削除はされません)
+     */
+    public boolean isDeletable(final String tweetId) throws IOException, ParseException {
+        log.debug("Called: isDeletable");
+
+        final String url = Urls.DELETE_TMPLATE.replace("{id}", tweetId);
+        //
+        //        final List<NameValuePair> nvps = new ArrayList<>();
+        //        nvps.add(new BasicNameValuePair("id", tweetId));
+
+        final HttpGet statusPage = new HttpGet(url);
+        //        statusPage.addHeader("sec-fetch-site", "same-origin");
+        statusPage.addHeader("referer", url);
+        //        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+
+        try (CloseableHttpResponse resp = client.execute(statusPage)) {
+            final String body = EntityUtils.toString(resp.getEntity());
+            log.info("BODY: {}", body);
+        }
+
+        return false;
     }
 
     private static Optional<HttpCookie> extractCookie(final HttpResponse resp, final String name) {

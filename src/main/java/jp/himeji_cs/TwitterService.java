@@ -5,6 +5,7 @@ import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -15,6 +16,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 
@@ -25,20 +27,19 @@ public class TwitterService {
 
     public TwitterService() {
         final RequestConfig globalConfig = RequestConfig.custom()
-            .setCookieSpec(StandardCookieSpec.RELAXED).build();
+            .setCookieSpec(StandardCookieSpec.RELAXED)
+            .setRedirectsEnabled(false)
+            .build();
         client = HttpClients.custom().setDefaultRequestConfig(globalConfig).build();
+        //        client = HttpClients.createDefault();
     }
 
     public void init() throws IOException {
+        log.debug("Called: init");
+
         final HttpGet httpget = new HttpGet(Urls.TOP);
         try (final CloseableHttpResponse resp = client.execute(httpget)) {
-            final String cookieStr = Arrays.stream(resp.getHeaders("set-cookie"))
-                .map(Header::getValue)
-                .filter(e -> e.startsWith("_mb_tk"))
-                .findAny().orElseThrow();
-
-            log.info("cookie(_mb_tk): {}", cookieStr);
-            mbTkCookie = HttpCookie.parse(cookieStr).get(0);
+            mbTkCookie = extractCookie(resp, "_mb_tk").orElseThrow();
         }
         System.out.println(toString(mbTkCookie));
     }
@@ -49,6 +50,8 @@ public class TwitterService {
     }
 
     public void login(final String id, final String password) throws IOException {
+        log.debug("Called: login");
+
         final List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("authenticity_token", mbTkCookie.getValue()));
         nvps.add(new BasicNameValuePair("session[username_or_email]", id));
@@ -57,6 +60,20 @@ public class TwitterService {
         final HttpPost httpPost = new HttpPost(Urls.LOGIN_POST);
         httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
+        try (CloseableHttpResponse resp = client.execute(httpPost)) {
+            extractCookie(resp, "auth_token")
+                .orElseThrow(() -> new RuntimeException("Login failed"));
+        }
     }
 
+    private static Optional<HttpCookie> extractCookie(final HttpResponse resp, final String name) {
+
+        final Optional<String> cookieStr = Arrays.stream(resp.getHeaders("set-cookie"))
+            .map(Header::getValue)
+            .filter(e -> e.startsWith(name))
+            .findAny();
+
+        log.debug("cookie({}): {}", name, cookieStr);
+        return cookieStr.map(str -> HttpCookie.parse(str).get(0));
+    }
 }

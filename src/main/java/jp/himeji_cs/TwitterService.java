@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -21,6 +22,11 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.jsoup.Connection.KeyVal;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.FormElement;
+import org.jsoup.select.Elements;
 
 @Slf4j
 public class TwitterService {
@@ -75,25 +81,50 @@ public class TwitterService {
      * (なんと、他人のツイートを表示した場合にも削除ボタンは表示されます！
      * が、もちろん削除ボタンを押しても削除はされません)
      */
-    public boolean isDeletable(final String tweetId) throws IOException, ParseException {
-        log.debug("Called: isDeletable");
+    public void deleteTweet(final String tweetId) throws IOException, ParseException {
+        log.debug("Called: deleteTweet");
 
         final String url = Urls.DELETE_TMPLATE.replace("{id}", tweetId);
-        //
-        //        final List<NameValuePair> nvps = new ArrayList<>();
-        //        nvps.add(new BasicNameValuePair("id", tweetId));
 
         final HttpGet statusPage = new HttpGet(url);
         //        statusPage.addHeader("sec-fetch-site", "same-origin");
         statusPage.addHeader("referer", url);
-        //        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
-        try (CloseableHttpResponse resp = client.execute(statusPage)) {
+        final List<NameValuePair> nvps;
+        try (final CloseableHttpResponse resp = client.execute(statusPage)) {
             final String body = EntityUtils.toString(resp.getEntity());
             log.info("BODY: {}", body);
+            final Document html = Jsoup.parse(body);
+            final Elements forms = html.getElementsByTag("form");
+            final int size = forms.size();
+            if (size != 1) {
+                // 想定しているページではない、つまりURL不正
+                throw new RuntimeException(
+                    String.format("Not found tweet(%d) %s", size, tweetId));
+            }
+            final FormElement form = (FormElement) forms.get(0);
+            final List<KeyVal> formData = form.formData();
+            log.debug("formData: {}", formData);
+
+            nvps = formData.stream()
+                .map(e -> new BasicNameValuePair(e.key(), e.value()))
+                .collect(Collectors.toList());
         }
 
-        return false;
+        final HttpPost deleteReq = new HttpPost(url);
+        deleteReq.addHeader("referer", url);
+        deleteReq.setEntity(new UrlEncodedFormEntity(nvps));
+
+        try (final CloseableHttpResponse resp = client.execute(deleteReq)) {
+            // 本当に削除しているかどうかはこのレスポンスではほとんど判明しないので気休め
+            // 削除できたかちゃんと確認するには再度同じidでリクエストかけてみるしか無いと思う
+            final int statusCode = resp.getCode();
+            if (statusCode >= 400) {
+                throw new RuntimeException(
+                    String.format("Delete request(%s) is not accepted: %d",
+                        tweetId, statusCode));
+            }
+        }
     }
 
     private static Optional<HttpCookie> extractCookie(final HttpResponse resp, final String name) {

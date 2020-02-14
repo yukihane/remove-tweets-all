@@ -10,5 +10,6 @@ public class App {
         final TwitterService tw = new TwitterService();
         tw.init();
         tw.login("test", "testpw");
+        tw.deleteTweet("1228420678212186113");
     }
 }

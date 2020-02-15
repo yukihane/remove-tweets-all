@@ -1,8 +1,5 @@
 package jp.himeji_cs;
 
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -63,7 +60,8 @@ public class TwitterArchive {
     }
 
     public void store(final List<String> ids) throws IOException {
-        try (final BufferedWriter writer = Files.newBufferedWriter(STORE_FILE, CREATE, TRUNCATE_EXISTING)) {
+        try (
+            final BufferedWriter writer = Files.newBufferedWriter(STORE_FILE)) {
             for (final String line : ids) {
                 writer.write(line);
                 writer.write("\n");

@@ -1,6 +1,10 @@
 package jp.himeji_cs;
 
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +32,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TwitterArchive {
 
+    public static void main(final String[] args) throws IOException {
+        final TwitterArchive ar = new TwitterArchive();
+        final List<String> ids = List.of("456", "789");
+        ar.store(ids);
+
+        final List<String> res = ar.readStore();
+        System.out.println(res);
+    }
+
     private static final Pattern PATTERN = Pattern.compile("    \"id\" : \"(\\d+)\",");
+
+    private static final Path STORE_FILE = Paths.get("tweets.txt");
 
     private static Optional<String> resolve(final String str) {
         final Matcher m = PATTERN.matcher(str);
@@ -36,6 +51,24 @@ public class TwitterArchive {
             return Optional.of(m.group(1));
         }
         return Optional.empty();
+    }
+
+    public List<String> readStore() throws IOException {
+        if (!Files.isReadable(STORE_FILE)) {
+            return List.of();
+        }
+        try (final BufferedReader reader = Files.newBufferedReader(STORE_FILE)) {
+            return reader.lines().collect(Collectors.toList());
+        }
+    }
+
+    public void store(final List<String> ids) throws IOException {
+        try (final BufferedWriter writer = Files.newBufferedWriter(STORE_FILE, CREATE, TRUNCATE_EXISTING)) {
+            for (final String line : ids) {
+                writer.write(line);
+                writer.write("\n");
+            }
+        }
     }
 
     public List<String> getIds(final String fileName) throws IOException {

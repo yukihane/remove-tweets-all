@@ -53,7 +53,7 @@ public class App {
         tw.login(opt.getUsername(), opt.getPassword());
 
         if (opt.isDryRun()) {
-            log.info("Successrul dry-run. See log for delete target IDs.");
+            log.info("Successful dry-run. See log for delete target IDs.");
 
             log.debug("DELETE TARGETS:");
             log.debug("total: {}", targets.size());

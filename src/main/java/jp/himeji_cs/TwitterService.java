@@ -84,7 +84,7 @@ public class TwitterService {
      * が、もちろん削除ボタンを押しても削除はされません)
      */
     public void deleteTweet(final String tweetId) throws IOException, ParseException {
-        log.debug("Called: deleteTweet");
+        log.debug("Called: deleteTweet: " + tweetId);
 
         final String url = Urls.DELETE_TMPLATE.replace("{id}", tweetId);
 
@@ -95,7 +95,7 @@ public class TwitterService {
         final List<NameValuePair> nvps;
         try (final CloseableHttpResponse resp = client.execute(statusPage)) {
             final String body = EntityUtils.toString(resp.getEntity());
-            log.info("BODY: {}", body);
+            log.trace("BODY: {}", body);
             final Document html = Jsoup.parse(body);
             final Elements forms = html.getElementsByTag("form");
             final int size = forms.size();
@@ -106,7 +106,7 @@ public class TwitterService {
             }
             final FormElement form = (FormElement) forms.get(0);
             final List<KeyVal> formData = form.formData();
-            log.debug("formData: {}", formData);
+            log.trace("formData: {}", formData);
 
             nvps = formData.stream()
                 .map(e -> new BasicNameValuePair(e.key(), e.value()))
@@ -138,7 +138,7 @@ public class TwitterService {
             .filter(e -> e.startsWith(name))
             .findAny();
 
-        log.debug("cookie({}): {}", name, cookieStr);
+        log.trace("cookie({}): {}", name, cookieStr);
         return cookieStr.map(str -> HttpCookie.parse(str).get(0));
     }
 }

@@ -51,7 +51,7 @@ public class TwitterArchive {
                         .flatMap(Optional::stream)
                         .collect(Collectors.toList());
 
-                    log.debug("delete targets: {}", res);
+                    log.trace("delete targets: {}", res);
 
                     return res;
                 }

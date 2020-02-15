@@ -31,6 +31,16 @@ public class App {
 
     public static void main(final String[] args) throws IOException, ParseException {
         log.trace("Called: main");
+        log.debug("debug");
+        try {
+            exec(args);
+        } catch (final Exception e) {
+            log.debug("exception", e);
+            throw e;
+        }
+    }
+
+    private static void exec(final String[] args) throws IOException {
 
         final Opt opt = new Opt();
         new CommandLine(opt).parseArgs(args);

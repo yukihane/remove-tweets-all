@@ -94,7 +94,15 @@ public class TwitterService {
         final List<NameValuePair> nvps;
         try (final CloseableHttpResponse resp = client.execute(statusPage)) {
             final int statusCode = resp.getCode();
-            if (statusCode >= 400 && statusCode < 500) {
+            if (statusCode == 404) {
+                log.debug("404 Not Found: {}", tweetId);
+                return;
+            } else if (statusCode == 429) {
+                log.error("429 Too Many Requests");
+                throw new AuthorizationException(
+                    String.format("Delete request(%s) is not accepted: %d",
+                        tweetId, statusCode));
+            } else if (statusCode >= 400 && statusCode < 500) {
                 throw new AuthorizationException(
                     String.format("Delete request(%s) is not accepted: %d",
                         tweetId, statusCode));
@@ -136,7 +144,12 @@ public class TwitterService {
             // 本当に削除しているかどうかはこのレスポンスではほとんど判明しないので気休め
             // 削除できたかちゃんと確認するには再度同じidでリクエストかけてみるしか無いと思う
             final int statusCode = resp.getCode();
-            if (statusCode >= 400 && statusCode < 500) {
+            if (statusCode == 429) {
+                log.error("429 Too Many Requests");
+                throw new AuthorizationException(
+                    String.format("Delete request(%s) is not accepted: %d",
+                        tweetId, statusCode));
+            } else if (statusCode >= 400 && statusCode < 500) {
                 throw new AuthorizationException(
                     String.format("Delete request(%s) is not accepted: %d",
                         tweetId, statusCode));

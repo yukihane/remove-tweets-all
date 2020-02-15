@@ -24,6 +24,9 @@ public class App {
         @Option(names = "-f", description = "Twitter archive file(.zip)", required = true)
         private String archiveFile;
 
+        @Option(names = "--dry-run", description = "true, if not delete actually")
+        private boolean dryRun;
+
     }
 
     public static void main(final String[] args) throws IOException, ParseException {
@@ -38,6 +41,18 @@ public class App {
         final TwitterService tw = new TwitterService();
         tw.init();
         tw.login(opt.getUsername(), opt.getPassword());
+
+        if (opt.isDryRun()) {
+            log.info("Successrul dry-run. See log for delete target IDs.");
+
+            log.debug("DELETE TARGETS:");
+            log.debug("total: {}", targets.size());
+            targets.forEach(id -> {
+                log.debug(id);
+            });
+
+            return;
+        }
 
         targets.forEach(id -> {
             try {

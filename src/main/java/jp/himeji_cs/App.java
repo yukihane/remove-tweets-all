@@ -77,6 +77,7 @@ public class App {
         }
 
         final List<String> remains = new ArrayList<>(targets);
+        log.info("remained size: {}", remains.size());
         try {
 
             targets.forEach(id -> {
@@ -95,6 +96,7 @@ public class App {
             });
         } finally {
             ar.store(remains);
+            log.info("remained size: {}", remains.size());
         }
     }
 }

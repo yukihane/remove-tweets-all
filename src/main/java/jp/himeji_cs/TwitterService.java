@@ -99,13 +99,22 @@ public class TwitterService {
             final Elements forms = html.getElementsByTag("form");
             final int size = forms.size();
             if (size != 1) {
-                // 想定しているページではない、つまりURL不正
                 throw new TargetNotFoundException(
                     String.format("Not found tweet(%d) %s", size, tweetId));
             }
             final FormElement form = (FormElement) forms.get(0);
             final List<KeyVal> formData = form.formData();
+
             log.trace("formData: {}", formData);
+
+            final Optional<String> postKeyTweetId = formData.stream()
+                .map(KeyVal::key)
+                .filter("tweet_id"::equals)
+                .findAny();
+            if (postKeyTweetId.isEmpty()) {
+                throw new TargetNotFoundException(
+                    String.format("Not found tweet(%d) %s", size, tweetId));
+            }
 
             nvps = formData.stream()
                 .map(e -> new BasicNameValuePair(e.key(), e.value()))

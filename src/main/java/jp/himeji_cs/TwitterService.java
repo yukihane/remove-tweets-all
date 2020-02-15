@@ -93,6 +93,13 @@ public class TwitterService {
 
         final List<NameValuePair> nvps;
         try (final CloseableHttpResponse resp = client.execute(statusPage)) {
+            final int statusCode = resp.getCode();
+            if (statusCode >= 400 && statusCode < 500) {
+                throw new AuthorizationException(
+                    String.format("Delete request(%s) is not accepted: %d",
+                        tweetId, statusCode));
+            }
+
             final String body = EntityUtils.toString(resp.getEntity());
             log.trace("BODY: {}", body);
             final Document html = Jsoup.parse(body);

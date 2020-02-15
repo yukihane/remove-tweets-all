@@ -54,7 +54,7 @@ public class App {
         } else {
             final String file = opt.getArchiveFile();
             if (file == null) {
-                System.err.println("-f [archiveFile] option reuired");
+                System.err.println("-f [archiveFile] option required");
                 return;
             }
             targets = ar.getIds(opt.getArchiveFile());

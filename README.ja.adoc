@@ -1,0 +1,27 @@
+= Remove Tweets All
+
+== これは何？
+
+ツイートを全削除するためのプログラムです。
+
+== コンセプト
+
+Twitter API は https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline[最近のツイート3,200件]しか取り扱えないそうです。
+
+そこで、API経由でなくブラウザ用URL https://mobile.twitter.com/statuses/<tweetID>/delete を利用して削除を行うことにしました。
+
+<tweetID>は https://help.twitter.com/ja/managing-your-account/how-to-download-your-twitter-archive[全ツイート履歴をダウンロードする方法] に記載されているアーカイブファイルで入手します。
+
+== 使い方
+
+* https://help.twitter.com/ja/managing-your-account/how-to-download-your-twitter-archive[Twitter アーカイブファイル]
+* https://adoptopenjdk.net/[JDK] 11 以上
+* https://github.com/yukihane/remove-tweets-all/releases[remove-tweets-all.jar]
+
+ java -jar remove-tweets-all.jar -u <username or mail-address> -p <password> -f <archiveFile>
+
+`429 Too Many Requests` が返ってきた場合、15-30分ほど待って再実行してみてください。
+
+カレントディレクトリにログファイル `remove-tweets-all.log.txt` と 削除対象IDを記録している `tweets.txt` が作成されます。
+
+`remove-tweets-all.log.txt` は秘密情報(ログインIDやパスワード)を含むので取り扱いに注意してください。

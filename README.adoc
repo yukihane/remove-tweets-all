@@ -1,0 +1,29 @@
+= Remove Tweets All
+
+link:./README.ja.adoc[Japanese README]
+
+== What's This?
+
+Remove my tweets all.
+
+== Concept
+
+Twitter API can treat only https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline[recent 3,200 tweets].
+
+So, this program uses legacy web URL, https://mobile.twitter.com/statuses/<tweetID>/delete.
+
+<tweetID>s are available on https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive["How to download your Twitter archive"].
+
+== Usage
+
+* https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive[Twitter archive file]
+* https://adoptopenjdk.net/[JDK] 11 or later
+* https://github.com/yukihane/remove-tweets-all/releases[remove-tweets-all.jar]
+
+ java -jar remove-tweets-all.jar -u <username or mail-address> -p <password> -f <archiveFile>
+
+If returned `429 Too Many Requests`, wait for about 15-30 minuts.
+
+Log file `remove-tweets-all.log.txt` and removing tweet records `tweets.txt` are created on current directory.
+
+`remove-tweets-all.log.txt` contains sensitive informations, id and password.

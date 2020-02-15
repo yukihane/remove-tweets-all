@@ -94,11 +94,14 @@ public class TwitterService {
         final List<NameValuePair> nvps;
         try (final CloseableHttpResponse resp = client.execute(statusPage)) {
             final int statusCode = resp.getCode();
-            if (statusCode == 404) {
+            if (statusCode == 403) {
+                log.debug("403 Forbidden: {}", tweetId);
+                return;
+            } else if (statusCode == 404) {
                 log.debug("404 Not Found: {}", tweetId);
                 return;
             } else if (statusCode == 429) {
-                log.error("429 Too Many Requests");
+                log.error("429 Too Many Requests: {}", tweetId);
                 throw new AuthorizationException(
                     String.format("Delete request(%s) is not accepted: %d",
                         tweetId, statusCode));

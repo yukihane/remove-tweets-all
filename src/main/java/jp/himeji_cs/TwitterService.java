@@ -51,7 +51,6 @@ public class TwitterService {
         try (final CloseableHttpResponse resp = client.execute(httpget)) {
             mbTkCookie = extractCookie(resp, "_mb_tk").orElseThrow();
         }
-        System.out.println(toString(mbTkCookie));
     }
 
     private static String toString(final HttpCookie e) {

@@ -1,6 +1,7 @@
 package jp.himeji_cs;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import jp.himeji_cs.exception.TargetNotFoundException;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class App {
         @Option(names = "-p", description = "password for login", required = true)
         private String password;
 
-        @Option(names = "-f", description = "Twitter archive file(.zip)", required = true)
+        @Option(names = "-f", description = "Twitter archive file(.zip)")
         private String archiveFile;
 
         @Option(names = "--dry-run", description = "true, if not delete actually")
@@ -46,7 +47,18 @@ public class App {
         new CommandLine(opt).parseArgs(args);
 
         final TwitterArchive ar = new TwitterArchive();
-        final List<String> targets = ar.getIds(opt.getArchiveFile());
+        final List<String> targets;
+        final List<String> stored = ar.readStore();
+        if (!stored.isEmpty()) {
+            targets = stored;
+        } else {
+            final String file = opt.getArchiveFile();
+            if (file == null) {
+                System.err.println("-f [archiveFile] option reuired");
+                return;
+            }
+            targets = ar.getIds(opt.getArchiveFile());
+        }
 
         final TwitterService tw = new TwitterService();
         tw.init();
@@ -64,16 +76,25 @@ public class App {
             return;
         }
 
-        targets.forEach(id -> {
-            try {
-                tw.deleteTweet(id);
-            } catch (ParseException | IOException e) {
-                log.error("Delete error, ID: {}, message: {}", id, e.getMessage());
-                log.debug("", e);
-            } catch (final TargetNotFoundException e) {
-                log.error("Delete error(not found), ID: {}, message: {}", id, e.getMessage());
-                log.debug("", e);
-            }
-        });
+        final List<String> remains = new ArrayList<>(targets);
+        try {
+
+            targets.forEach(id -> {
+                try {
+                    tw.deleteTweet(id);
+                    remains.remove(id);
+                } catch (ParseException | IOException e) {
+                    remains.remove(id);
+                    log.error("Delete error, ID: {}, message: {}", id, e.getMessage());
+                    log.debug("", e);
+                } catch (final TargetNotFoundException e) {
+                    remains.remove(id);
+                    log.error("Delete error(not found), ID: {}, message: {}", id, e.getMessage());
+                    log.debug("", e);
+                }
+            });
+        } finally {
+            ar.store(remains);
+        }
     }
 }

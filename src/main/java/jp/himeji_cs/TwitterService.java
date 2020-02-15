@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import jp.himeji_cs.exception.AuthorizationException;
+import jp.himeji_cs.exception.TargetNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -70,7 +72,7 @@ public class TwitterService {
 
         try (CloseableHttpResponse resp = client.execute(httpPost)) {
             extractCookie(resp, "auth_token")
-                .orElseThrow(() -> new RuntimeException("Login failed"));
+                .orElseThrow(() -> new AuthorizationException("Login failed"));
         }
     }
 
@@ -99,7 +101,7 @@ public class TwitterService {
             final int size = forms.size();
             if (size != 1) {
                 // 想定しているページではない、つまりURL不正
-                throw new RuntimeException(
+                throw new TargetNotFoundException(
                     String.format("Not found tweet(%d) %s", size, tweetId));
             }
             final FormElement form = (FormElement) forms.get(0);
@@ -119,10 +121,12 @@ public class TwitterService {
             // 本当に削除しているかどうかはこのレスポンスではほとんど判明しないので気休め
             // 削除できたかちゃんと確認するには再度同じidでリクエストかけてみるしか無いと思う
             final int statusCode = resp.getCode();
-            if (statusCode >= 400) {
-                throw new RuntimeException(
+            if (statusCode >= 400 && statusCode < 500) {
+                throw new AuthorizationException(
                     String.format("Delete request(%s) is not accepted: %d",
                         tweetId, statusCode));
+            } else if (statusCode >= 500) {
+                throw new IOException("Delete error: " + statusCode);
             }
         }
     }

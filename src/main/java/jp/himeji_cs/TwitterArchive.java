@@ -58,6 +58,6 @@ public class TwitterArchive {
             }
         }
 
-        throw new RuntimeException("Invalid form file: " + fileName);
+        throw new IOException("Invalid form file: " + fileName);
     }
 }

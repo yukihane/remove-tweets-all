@@ -90,7 +90,7 @@ public class App {
                     log.debug("", e);
                 } catch (final TargetNotFoundException e) {
                     remains.remove(id);
-                    log.error("Delete error(not found), ID: {}, message: {}", id, e.getMessage());
+                    log.error("Delete error(not found), ID: {}", id);
                     log.debug("", e);
                 }
             });

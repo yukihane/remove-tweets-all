@@ -41,12 +41,12 @@ public class TwitterArchive {
         return Optional.empty();
     }
 
-    public List<String> readStore() throws IOException {
+    public Optional<List<String>> readStore() throws IOException {
         if (!Files.isReadable(STORE_FILE)) {
-            return List.of();
+            return Optional.empty();
         }
         try (final BufferedReader reader = Files.newBufferedReader(STORE_FILE)) {
-            return reader.lines().collect(Collectors.toList());
+            return Optional.of(reader.lines().collect(Collectors.toList()));
         }
     }
 

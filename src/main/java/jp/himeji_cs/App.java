@@ -3,6 +3,7 @@ package jp.himeji_cs;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import jp.himeji_cs.exception.TargetNotFoundException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +49,9 @@ public class App {
 
         final TwitterArchive ar = new TwitterArchive();
         final List<String> targets;
-        final List<String> stored = ar.readStore();
+        final Optional<List<String>> stored = ar.readStore();
         if (!stored.isEmpty()) {
-            targets = stored;
+            targets = stored.get();
         } else {
             final String file = opt.getArchiveFile();
             if (file == null) {
@@ -98,5 +99,6 @@ public class App {
             ar.store(remains);
             log.info("remained size: {}", remains.size());
         }
+        log.info("Finish deleting");
     }
 }

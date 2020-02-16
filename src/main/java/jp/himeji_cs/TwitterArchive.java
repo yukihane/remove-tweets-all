@@ -29,15 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TwitterArchive {
 
-    public static void main(final String[] args) throws IOException {
-        final TwitterArchive ar = new TwitterArchive();
-        final List<String> ids = List.of("456", "789");
-        ar.store(ids);
-
-        final List<String> res = ar.readStore();
-        System.out.println(res);
-    }
-
     private static final Pattern PATTERN = Pattern.compile("    \"id\" : \"(\\d+)\",");
 
     private static final Path STORE_FILE = Paths.get("tweets.txt");

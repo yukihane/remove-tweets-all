@@ -19,6 +19,7 @@ So, this program uses legacy web URL, https://mobile.twitter.com/statuses/<tweet
 * https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive[Twitter archive file]
 * https://adoptopenjdk.net/[JDK] 11 or later
 * https://github.com/yukihane/remove-tweets-all/releases[remove-tweets-all.jar]
+* Need https://twitter.com/settings/phone[registering your phone number], maybe
 
  java -jar remove-tweets-all.jar -u <username or mail-address> -p <password> -f <archiveFile>
 

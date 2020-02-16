@@ -1,5 +1,8 @@
 = Remove Tweets All
 
+link:./README.adoc[English README]
+
+
 == これは何？
 
 ツイートを全削除するためのプログラムです。
@@ -17,6 +20,7 @@ Twitter API は https://developer.twitter.com/en/docs/tweets/timelines/api-refer
 * https://help.twitter.com/ja/managing-your-account/how-to-download-your-twitter-archive[Twitter アーカイブファイル]
 * https://adoptopenjdk.net/[JDK] 11 以上
 * https://github.com/yukihane/remove-tweets-all/releases[remove-tweets-all.jar]
+* botと判定される可能性があり、その場合もしかすると https://twitter.com/settings/phone[電話番号登録] が必要になるかもしれません
 
  java -jar remove-tweets-all.jar -u <username or mail-address> -p <password> -f <archiveFile>
 

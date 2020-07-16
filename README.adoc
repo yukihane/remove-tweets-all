@@ -1,5 +1,8 @@
 = Remove Tweets All
 
+*This tool has been deprecated. https://help.twitter.com/en/using-twitter/mobile-twitter-on-feature-phones[Feature phones URL `mobile.twitter.com`] has been unavailable.*
+
+
 link:./README.ja.adoc[Japanese README]
 
 == What's This?

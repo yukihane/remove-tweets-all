@@ -1,5 +1,7 @@
 = Remove Tweets All
 
+このツールはもはや陳腐化しています。 https://help.twitter.com/ja/using-twitter/mobile-twitter-on-feature-phones[フィーチャーフォン用URL `mobile.twitter.com`] は利用できなくなりました。
+
 link:./README.adoc[English README]
 
 
